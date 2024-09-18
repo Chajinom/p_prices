@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
+</head>
+<body>
+    <h1>Bienvenido, {{ username }}</h1>
+    <form method="POST" action="/home">
+        <label for="direccion">Ingrese una dirección:</label>
+        <input type="text" id="direccion" name="direccion" required>
+        <button type="submit">Convertir a Latitud y Longitud</button>
+    </form>
+
+    {% if lat and lon %}
+        <p>Latitud: {{ lat }}</p>
+        <p>Longitud: {{ lon }}</p>
+    {% endif %}
+
+    <br>
+    <a href="/logout">Cerrar sesión</a>
+</body>
+</html>

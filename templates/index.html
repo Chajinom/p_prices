@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obtener ubicación</title>
+    <script>
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(enviarUbicacion);
+            } else {
+                alert("La geolocalización no es soportada por este navegador.");
+            }
+        }
+
+        function enviarUbicacion(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+
+            // Enviar la latitud y longitud al servidor
+            fetch('/guardar_ubicacion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    latitud: lat,
+                    longitud: lon
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Ubicación recibida: ' + data.message);
+                // Aquí puedes hacer que el usuario vea el mapa
+                window.location.href = "/mostrar_mapa";
+            });
+        }
+    </script>
+</head>
+<body onload="obtenerUbicacion()">
+    <h1>Bienvenido a la aplicación</h1>
+    <p>Esperando para obtener tu ubicación...</p>
+</body>
+</html>
