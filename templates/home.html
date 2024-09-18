@@ -3,18 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Inicio</title>
+    <script>
+        function obtenerCiudades() {
+            var pais_id = document.getElementById("pais").value;
+            fetch('/obtener_ciudades?pais_id=' + pais_id)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("ciudad_container").innerHTML = data;
+                });
+        }
+    </script>
 </head>
 <body>
     <h1>Bienvenido, {{ username }}</h1>
     <form method="POST" action="/home">
-        <label for="direccion">Ingrese una dirección:</label>
+        <label for="pais">País:</label>
+        <select id="pais" name="pais" onchange="obtenerCiudades()" required>
+            <option value="">Seleccione un país</option>
+            {% for pais in paises %}
+                <option value="{{ pais.id }}">{{ pais.nombre }}</option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <label for="ciudad">Ciudad:</label>
+        <div id="ciudad_container">
+            <select id="ciudad" name="ciudad" required>
+                <option value="">Seleccione un país primero</option>
+            </select>
+        </div>
+        <br>
+
+        <label for="direccion">Dirección (Calle y número):</label>
         <input type="text" id="direccion" name="direccion" required>
+        <br>
+
         <button type="submit">Convertir a Latitud y Longitud</button>
     </form>
 
     {% if lat and lon %}
-        <p>Latitud: {{ lat }}</p>
-        <p>Longitud: {{ lon }}</p>
+        <h3>Coordenadas obtenidas:</h3>
+        <table border="1">
+            <tr>
+                <th>Latitud</th>
+                <td>{{ lat }}</td>
+            </tr>
+            <tr>
+                <th>Longitud</th>
+                <td>{{ lon }}</td>
+            </tr>
+        </table>
     {% endif %}
 
     <br>

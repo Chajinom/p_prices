@@ -73,3 +73,20 @@ if dataframes:
     print(f'Archivo consolidado guardado en: {output_path}')
 else:
     print("No se encontraron archivos válidos para consolidar.")
+
+import pandas as pd
+import sqlite3
+
+# Leer el CSV procesado (después de limpieza)
+df = pd.read_csv(output_folder+"/"+output_file)
+
+# Conectar a la base de datos
+conn = sqlite3.connect('../database.db')
+
+# Escribir el DataFrame en una tabla SQLite
+df.to_sql('db_comercio', conn, if_exists='replace', index=False)
+
+# Cerrar la conexión
+conn.close()
+
+print("Datos de comercio actualizados en la base de datos.")

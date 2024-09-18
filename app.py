@@ -43,18 +43,49 @@ def home():
     lat = None
     lon = None
 
+    conn = get_db_connection()
+    paises = conn.execute('SELECT * FROM paises').fetchall()
+    ciudades = None
+
     if request.method == 'POST':
+        pais_id = request.form['pais']
+        ciudad_id = request.form['ciudad']
         direccion = request.form['direccion']
+
+        # Obtener el nombre del país y la ciudad seleccionados
+        pais = conn.execute('SELECT nombre FROM paises WHERE id = ?', (pais_id,)).fetchone()
+        ciudad = conn.execute('SELECT nombre FROM ciudades WHERE id = ?', (ciudad_id,)).fetchone()
+
+        # Construir la dirección completa
+        direccion_completa = f"{direccion}, {ciudad['nombre']}, {pais['nombre']}"
         geolocator = Nominatim(user_agent="mi_aplicacion")
-        location = geolocator.geocode(direccion)
+        location = geolocator.geocode(direccion_completa)
 
         if location:
             lat = location.latitude
             lon = location.longitude
         else:
-            flash('No se pudo encontrar la dirección')
+            flash('No se pudo encontrar la dirección completa')
 
-    return render_template('home.html', username=session['username'], lat=lat, lon=lon)
+    if request.args.get('pais'):
+        # Cargar las ciudades cuando un país es seleccionado
+        pais_id = request.args.get('pais')
+        ciudades = conn.execute('SELECT * FROM ciudades WHERE pais_id = ?', (pais_id,)).fetchall()
+
+    conn.close()
+
+    return render_template('home.html', username=session['username'], paises=paises, ciudades=ciudades, lat=lat,
+                           lon=lon)
+
+
+# Ruta para obtener las ciudades basadas en el país seleccionado
+@app.route('/obtener_ciudades', methods=['GET'])
+def obtener_ciudades():
+    pais_id = request.args.get('pais_id')
+    conn = get_db_connection()
+    ciudades = conn.execute('SELECT * FROM ciudades WHERE pais_id = ?', (pais_id,)).fetchall()
+    conn.close()
+    return render_template('ciudades_dropdown.html', ciudades=ciudades)
 
 
 # Cerrar sesión
